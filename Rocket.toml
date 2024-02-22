@@ -1,0 +1,21 @@
+[default]
+address = "127.0.0.1"
+secret_key = ""
+
+[default.databases.db]
+url = "postgres://postgres:asdqwe123@127.0.0.1:30002/game"
+
+[dev]
+address = "0.0.0.0"
+secret_key = ""
+
+[dev.databases.db]
+url = ""
+
+[release]
+address = "0.0.0.0"
+log = "critical"
+secret_key = ""
+
+[release.databases.db]
+url = ""

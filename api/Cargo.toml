@@ -1,0 +1,17 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0"
+rocket = { version = "0", features = ["json"] }
+sea-orm-rocket = { version = "0" }
+tokio = "1"
+jsonwebtoken = "9"
+
+model_entity = { path = "../entity" }
+service = { path = "../service" }
+db = { path = "../db" }
