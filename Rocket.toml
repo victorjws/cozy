@@ -1,0 +1,2 @@
+[default.databases]
+db = { url = "postgres://postgres:asdqwe123@localhost:30002/game" }

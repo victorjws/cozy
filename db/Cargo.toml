@@ -1,0 +1,23 @@
+[package]
+name = "db"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# dotenvy = "0.15"
+# async-stream = { version = "0.3" }
+async-trait = { version = "0" }
+# futures = { version = "0.3" }
+# futures-util = { version = "0.3" }
+rocket = { version = "0", features = ["json"] }
+sea-orm = { version = "0", features = [
+    "sqlx-postgres",
+    "runtime-tokio-native-tls",
+    "macros",
+    "with-json",
+] }
+sea-orm-rocket = { version = "0" }
+# serde_json = { version = "1" }
+tokio = "1"
