@@ -33,7 +33,12 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Character::Name).string().not_null())
+                    .col(
+                        ColumnDef::new(Character::Name)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -49,7 +54,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Food::Name).string().not_null())
+                    .col(ColumnDef::new(Food::Name).string().not_null().unique_key())
                     .to_owned(),
             )
             .await?;
@@ -65,7 +70,12 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Machine::Name).string().not_null())
+                    .col(
+                        ColumnDef::new(Machine::Name)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .to_owned(),
             )
             .await?;

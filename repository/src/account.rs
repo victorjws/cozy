@@ -5,7 +5,7 @@ use model_entity::dto::{
     Mission as MissionDTO,
 };
 use model_entity::prelude::{
-    AccountsCharacters, AccountsFoods, AccountsMachines, AccountsMissions, Business,
+    Account, AccountsCharacters, AccountsFoods, AccountsMachines, AccountsMissions, Business,
 };
 use model_entity::{
     account, accounts_characters, accounts_foods, accounts_machines, accounts_missions, business,
@@ -14,6 +14,7 @@ use model_entity::{
 
 #[derive(Debug, FromQueryResult)]
 struct DataJoinResult {
+    id: i32,
     name: String,
     current_level: i32,
 }
@@ -21,6 +22,7 @@ struct DataJoinResult {
 impl From<DataJoinResult> for CharacterDTO {
     fn from(join_result: DataJoinResult) -> Self {
         Self {
+            id: join_result.id,
             name: join_result.name,
             current_level: join_result.current_level,
             is_unlocked: true,
@@ -31,6 +33,7 @@ impl From<DataJoinResult> for CharacterDTO {
 impl From<DataJoinResult> for MachineDTO {
     fn from(join_result: DataJoinResult) -> Self {
         Self {
+            id: join_result.id,
             name: join_result.name,
             current_level: join_result.current_level,
             is_unlocked: true,
@@ -41,6 +44,7 @@ impl From<DataJoinResult> for MachineDTO {
 impl From<DataJoinResult> for FoodDTO {
     fn from(join_result: DataJoinResult) -> Self {
         Self {
+            id: join_result.id,
             name: join_result.name,
             current_level: join_result.current_level,
             is_unlocked: true,
@@ -57,7 +61,7 @@ struct MissionJoinResult {
 impl From<MissionJoinResult> for MissionDTO {
     fn from(join_result: MissionJoinResult) -> Self {
         Self {
-            mission_index: join_result.id,
+            id: join_result.id,
             is_unlocked: true,
             is_cleared: join_result.is_cleared,
         }
@@ -75,12 +79,17 @@ impl AccountRepo {
         Ok(inserted_account)
     }
 
+    pub async fn get_by_id(db: &DbConn, id: i32) -> Result<account::Model, DbErr> {
+        let saved_account = Account::find_by_id(id).one(db).await?.unwrap();
+        Ok(saved_account)
+    }
+
     pub async fn get(db: &DbConn, account_id: i32) -> Result<BusinessDTO, DbErr> {
         let business_data = Business::find()
             .filter(business::Column::AccountId.eq(account_id)) // Adjust based on your schema
             .one(db)
             .await?
-            .ok_or(DbErr::Custom("Business data not found for account".into()))?;
+            .unwrap();
 
         let characters: Vec<CharacterDTO> = AccountsCharacters::find()
             .filter(accounts_characters::Column::AccountId.eq(account_id))
@@ -89,6 +98,7 @@ impl AccountRepo {
                 accounts_characters::Relation::Character.def(),
             )
             .select_only()
+            .column_as(character::Column::Id, "id")
             .column_as(character::Column::Name, "name")
             .column_as(accounts_characters::Column::CurrentLevel, "current_level")
             .into_model::<DataJoinResult>()
@@ -102,6 +112,7 @@ impl AccountRepo {
             .filter(accounts_foods::Column::AccountId.eq(account_id))
             .join(JoinType::InnerJoin, accounts_foods::Relation::Food.def())
             .select_only()
+            .column_as(food::Column::Id, "id")
             .column_as(food::Column::Name, "name")
             .column_as(accounts_foods::Column::CurrentLevel, "current_level")
             .into_model::<DataJoinResult>()
@@ -118,6 +129,7 @@ impl AccountRepo {
                 accounts_machines::Relation::Machine.def(),
             )
             .select_only()
+            .column_as(machine::Column::Id, "id")
             .column_as(machine::Column::Name, "name")
             .column_as(accounts_machines::Column::CurrentLevel, "current_level")
             .into_model::<DataJoinResult>()
@@ -150,6 +162,8 @@ impl AccountRepo {
             enabled_tables: business_data.enabled_tables,
             chef_speed_multiplier: business_data.chef_speed_multiplier,
             server_speed_multiplier: business_data.server_speed_multiplier,
+            accumulated_customer: business_data.accumulated_customer,
+            accumulated_sales: business_data.accumulated_sales,
             current_characters: characters,
             current_foods: foods,
             current_machines: machines,
